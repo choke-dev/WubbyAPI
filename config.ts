@@ -1,7 +1,7 @@
 const dbCreds = {
-    user: "",
-    database: "",
-    password: "",
+    user: "wubbyapi",
+    database: "wubbyapi",
+    password: "GU15fTDjJJcDHnA",
     hostname: "localhost",
     port: 5432
 }
