@@ -1,6 +1,8 @@
-import { Universe, DataStore } from "npm:@daw588/roblox.js";
+import { Universe, DataStore, DataStoreKeyInfo } from "npm:@daw588/roblox.js";
 import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
 import { Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
+
+import type { WubbyAPI_UserInfo } from '../types/user.types.ts'
 
 const env = await load();
 const universeId = +env["UNIVERSE_ID"];
@@ -11,12 +13,9 @@ const users = new DataStore(universe, "MyGames");
 
 const numberRegex = /^\d+$/;
 
-// @desc    Get detailed information about a user on wubby.
-// @route   GET /api/v1/userinfo/:userid
 const getUserInfo = async ({ response, params }: { response: Response, params: { userid: string } }) => {
     const userId = params.userid
 
-    // idk how to use middlewares
     if (!numberRegex.test(userId)) {
         response.body = { errors: { message: `Invalid user ID. (Received: ${userId})` } };
         response.status = 400;
@@ -24,7 +23,7 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
     }
 
     try {
-        const [data]: any = await users.GetAsync(userId);
+        const [data] = await users.GetAsync(userId) as [WubbyAPI_UserInfo, DataStoreKeyInfo];
 
         const formattedData = {
             bannedUntil: data["S"],
@@ -32,7 +31,7 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
             description: data["Status"],
             equippedCosmetics: data["E"],
             favoriteWorlds: data["Favorites"],
-            joinDate: new Date(parseInt(data["JoinDate"]) * 1000).toISOString(),
+            joinDate: new Date(data["JoinDate"] * 1000).toISOString(),
             lastBanReason: data["Reason"],
             inventory: data["Inventory"],
             pinnedWorld: data["P"],
