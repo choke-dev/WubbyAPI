@@ -1,20 +1,23 @@
 import { Router } from "https://deno.land/x/oak@14.2.0/mod.ts"
-import { getWorldInfo, searchWorld, insertWorld, updateWorld } from './controllers/world.ts'
-import { getUserInfo } from "./controllers/user.ts"
+import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
 
-const router = new Router()
+import { auth } from './middlewares/auth.ts'
 
-// router.get('/api/v1/products', getProducts)
-// .get('/api/v1/products/:id', getProduct)
-// .post('/api/v1/products', addProduct)
-// .put('/api/v1/products/:id', updateProduct)
-// .delete('/api/v1/products/:id', deleteProduct)
+import { healthCheck } from './controllers/api.ts';
+import { getWorldInfo, searchWorld, insertWorld, updateWorld } from './controllers/world.ts';
+import { getUserInfo } from "./controllers/user.ts";
 
-router.get('/api/v1/worldinfo/:worldid', getWorldInfo)
-router.get('/api/v1/userinfo/:userid', getUserInfo)
 
-router.get('/api/v1/searchworld/:worldname', searchWorld)
-router.post('/api/v1/insertworld', insertWorld)
-router.put('/api/v1/updateworld', updateWorld)
+const env = await load();
+const router = new Router();
+
+router.get('/', healthCheck);
+
+router.get('/v1/worldinfo/:worldid', getWorldInfo);
+router.get('/v1/userinfo/:userid', getUserInfo);
+
+router.get('/v1/searchworld/:worldname', auth([ env["APIKEY_WUBBYGAME"] ]), searchWorld);
+router.post('/v1/insertworld', auth([ env["APIKEY_WUBBYGAME"] ]), insertWorld);
+router.put('/v1/updateworld', auth([ env["APIKEY_WUBBYGAME"] ]), updateWorld);
 
 export default router
