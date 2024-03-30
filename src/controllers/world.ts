@@ -3,6 +3,8 @@ import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
 import { Request, Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
 
+import { WubbyAPI_WorldInfo } from '../types/world.types.ts'
+
 const env = await load();
 
 const universeId = +env["UNIVERSE_ID"];
@@ -34,7 +36,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
         const [featuredWorlds, worldInfo] = await Promise.all([
             worlds.GetAsync("FEATURED").then(response => response[0]),
             worlds.GetAsync(worldID).then(response => response[0])
-        ]) as [number[], Record<string, unknown>];
+        ]) as [number[], WubbyAPI_WorldInfo];
 
         const data = {
             activePlayers: worldInfo["ActivePlayers"],
