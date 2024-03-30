@@ -1,7 +1,7 @@
 import { Universe, DataStore } from "npm:@daw588/roblox.js";
 import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
-import { Context, Request, Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
-import postgres from 'https://deno.land/x/postgresjs/mod.js';
+import { Request, Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
+import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
 
 const env = await load();
 
@@ -83,7 +83,7 @@ const searchWorld = async ({ request, response, params }: { request: Request, re
     response.status = 200;
 }
 
-const insertWorld = async ({ request, response }: { request: Request, response: Response }) => {
+const insertWorld = ({ response }: { response: Response }) => {
     response.body = {
         errors: {
             message: "This endpoint is not yet implemented."
@@ -92,7 +92,7 @@ const insertWorld = async ({ request, response }: { request: Request, response: 
     response.status = 501;
 }
 
-const updateWorld = async ({ response }: { response: Response }) => {
+const updateWorld = ({ response }: { response: Response }) => {
     response.body = {
         errors: {
             message: "This endpoint is not yet implemented."
