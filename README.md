@@ -10,6 +10,9 @@ A RESTful API built in Deno for the Roblox Building Game, <a href="https://www.r
 
 ***
 
+# Info
+- This API uses PostgreSQL for its database.
+- Specific endpoints can be protected with API Keys, and they must be defined manually in [routes.ts](./src/routes.ts).
 
 # Run
 ```
