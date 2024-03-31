@@ -24,7 +24,7 @@ deno run --allow-read --allow-env --allow-net ./src/server.ts
 ```
 GET      /v1/worldInfo/:id
 GET      /v1/userInfo/:id
-GET      /v1/searchWorld/:searchquery
+GET      /v1/searchWorld/?query= &limit=
 POST     /v1/insertWorld
 PUT      /v1/updateWorld [ WIP ]
 ```
