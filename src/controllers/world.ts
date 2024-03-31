@@ -27,7 +27,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
 
     // idk how to use middlewares
     if (!numberRegex.test(worldID)) {
-        response.body = { errors: { message: `Invalid world ID. (Received: ${worldID})` } };
+        response.body = { errors: [{ message: `Invalid world ID. (Received: ${worldID})` }] };
         response.status = 400;
         return
     }
@@ -59,23 +59,29 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
             whitelistedPlayers: worldInfo["Whitelisted"],
         }
 
-        console.log(`[WorldInfo] Fetched worldinfo for ${worldID}`)
+        console.log(`[${Date.now()}] [WorldInfo] Fetched worldinfo for ${worldID}`)
 
         response.body = data
         response.status = 200
     } catch (err) {
-        response.body = { errors: err };
+        response.body = { errors: [err] };
         response.status = err.status;
     }
 }
 
-const searchWorld = async ({ request, response, params }: { request: Request, response: Response, params: { worldname: string } }) => {
+const searchWorld = async ({ request, response }: { request: Request, response: Response }) => {
+    const queryParams = request.url.searchParams
+    const worldName: string | null = queryParams.get('query')
     const limit: number = Number(request.url.searchParams.get('limit')) || 50
 
-    const worldName = params.worldname
+    if (!worldName) {
+        response.body = { errors: [{ message: 'Missing "query" parameter value' }] };
+        response.status = 400;
+        return; 
+    }
 
     if (worldName.length < 3) {
-        response.body = { errors: "World name must be at least 3 characters long." };
+        response.body = { errors: [{ message: 'Search query must be at least 3 characters long' }] };
         response.status = 400;
         return;
     }
@@ -88,20 +94,12 @@ const searchWorld = async ({ request, response, params }: { request: Request, re
 }
 
 const insertWorld = ({ response }: { response: Response }) => {
-    response.body = {
-        errors: {
-            message: "This endpoint is not yet implemented."
-        }
-    };
+    response.body = { errors: [{ message: 'Service Unavailable' }] };
     response.status = 501;
 }
 
 const updateWorld = ({ response }: { response: Response }) => {
-    response.body = {
-        errors: {
-            message: "This endpoint is not yet implemented."
-        }
-    };
+    response.body = { errors: [{ message: 'Service Unavailable' }] };
     response.status = 501;
 }
 

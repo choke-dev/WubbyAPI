@@ -17,7 +17,7 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
     const userId = params.userid
 
     if (!numberRegex.test(userId)) {
-        response.body = { errors: { message: `Invalid user ID. (Received: ${userId})` } };
+        response.body = { errors: [{ message: `Invalid user ID. (Received: ${userId})` }] };
         response.status = 400;
         return
     }
@@ -40,14 +40,12 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
             wubbits: data["Wubbits"]
         }
 
-        console.log(`[UserInfo] Fetched userinfo for ${userId}`)
+        console.log(`[${Date.now()}] [UserInfo] Fetched userinfo for ${userId}`)
 
         response.body = formattedData
         response.status = 200
     } catch (err) {
-        response.body = {
-            errors: err
-        }
+        response.body = { errors: [err] };
         response.status = err.status
     }
 }
