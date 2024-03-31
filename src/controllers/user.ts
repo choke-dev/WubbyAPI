@@ -25,8 +25,10 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
     try {
         const [data] = await users.GetAsync(userId) as [WubbyAPI_UserInfo, DataStoreKeyInfo];
 
+        const banExpirationDate = (data["S"] ? new Date(data["S"] * 1000).toISOString() : null)
+
         const formattedData = {
-            bannedUntil: data["S"],
+            bannedUntil: banExpirationDate,
             createdWorlds: data["Mine"],
             description: data["Status"],
             equippedCosmetics: data["E"],
