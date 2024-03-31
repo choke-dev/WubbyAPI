@@ -5,7 +5,7 @@
 Wubby API
 </h1>
 <p align="center">
-A RESTful API built in Deno for the Roblox Building Game, <a href="https://www.roblox.com/games/12519560096">Wubby</a>
+A RESTful API built in <sub><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Deno_2021.svg/1024px-Deno_2021.svg.png" height="20"></sub> Deno for the Roblox Building Game, <a href="https://www.roblox.com/games/12519560096">Wubby</a>
 </p>
 
 ***

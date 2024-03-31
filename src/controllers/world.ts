@@ -59,6 +59,8 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
             whitelistedPlayers: worldInfo["Whitelisted"],
         }
 
+        console.log(`[WorldInfo] Fetched worldinfo for ${worldID}`)
+
         response.body = data
         response.status = 200
     } catch (err) {
