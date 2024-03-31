@@ -93,12 +93,26 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
     response.status = 200;
 }
 
-const insertWorld = ({ response }: { response: Response }) => {
-    response.body = { errors: [{ message: 'Service Unavailable' }] };
-    response.status = 501;
+const insertWorld = async ({ request, response }: { request: Request, response: Response }) => {
+    const requestBody = await request.body.json()
+
+    await sql.begin(async sql => {
+        await sql`
+            INSERT INTO worlds 
+            ${sql(requestBody, "world_id", "world_name", "world_description")}
+        `
+    })
+    .then(() => {
+        response.body = { message: "OK" }
+        response.status = 200;
+    })
+    .catch((err) => {
+        response.body = { errors: [{ message: err }] };
+        response.status = 500
+    })
 }
 
-const updateWorld = ({ response }: { response: Response }) => {
+const updateWorld = ({ request, response }: { request: Request, response: Response }) => {
     response.body = { errors: [{ message: 'Service Unavailable' }] };
     response.status = 501;
 }
