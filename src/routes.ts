@@ -19,7 +19,7 @@ router.get('/v1/userinfo/:userid', getUserInfo);
 
 router.get('/v1/searchworld', auth([ env["APIKEY_MASTER"], env["APIKEY_WUBBYGAME"] ]), searchWorld);
 router.post('/v1/insertworld', auth([ env["APIKEY_MASTER"], env["APIKEY_WUBBYGAME"] ]), validateWorldData, insertWorld);
-router.put('/v1/updateworld', auth([ env["APIKEY_MASTER"], env["APIKEY_WUBBYGAME"] ]), validateWorldData, updateWorld);
+router.patch('/v1/updateworld', auth([ env["APIKEY_MASTER"], env["APIKEY_WUBBYGAME"] ]), validateWorldData, updateWorld);
 
 router.get("/(.*)", (context: Context) => {      
     context.response.status = 404;

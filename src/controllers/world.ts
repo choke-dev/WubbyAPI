@@ -1,6 +1,6 @@
 import { Universe, DataStore } from "npm:@daw588/roblox.js";
 import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
-import { Request, Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
+import { Request, Response, State } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
 
 import { WubbyAPI_WorldInfo } from '../types/world.types.ts'
@@ -93,28 +93,44 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
     response.status = 200;
 }
 
-const insertWorld = async ({ request, response }: { request: Request, response: Response }) => {
-    const requestBody = await request.body.json()
+const insertWorld = async ({ response, state }: { response: Response, state: State }) => {
+    const requestBody = state.requestBody
 
-    await sql.begin(async sql => {
-        await sql`
-            INSERT INTO worlds 
-            ${sql(requestBody, "world_id", "world_name", "world_description")}
-        `
-    })
-    .then(() => {
+    try {
+        await sql.begin(async sql => {
+            await sql`
+                INSERT INTO worlds 
+                ${sql(requestBody, "world_id", "world_name", "world_description")}
+            `
+        })
         response.body = { message: "OK" }
         response.status = 200;
-    })
-    .catch((err) => {
-        response.body = { errors: [{ message: err }] };
-        response.status = 500
-    })
+    } catch(err) {
+        response.body = { errors: [{ message: err.message }] };
+        response.status = 500   
+    }
 }
 
-const updateWorld = ({ request, response }: { request: Request, response: Response }) => {
-    response.body = { errors: [{ message: 'Service Unavailable' }] };
-    response.status = 501;
+const updateWorld = async ({ response, state }: { response: Response, state: State }) => {
+    const requestBody = state.requestBody
+
+    try {
+        await sql.begin(async sql => {
+            await sql`
+                UPDATE worlds 
+                SET 
+                world_name = ${requestBody.world_name}, 
+                world_description = ${requestBody.world_description} 
+                WHERE 
+                world_id = ${requestBody.world_id}
+            `
+        })
+        response.body = { message: "OK" }
+        response.status = 200;
+    } catch(err) {
+        response.body = { errors: [{ message: err.message }] };
+        response.status = 500   
+    }
 }
 
 export { getWorldInfo, searchWorld, insertWorld, updateWorld }
