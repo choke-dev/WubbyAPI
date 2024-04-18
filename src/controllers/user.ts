@@ -42,8 +42,6 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
             wubbits: data["Wubbits"]
         }
 
-        console.log(`[${Date.now()}] [UserInfo] Fetched userinfo for ${userId}`)
-
         response.body = formattedData
         response.status = 200
     } catch (err) {

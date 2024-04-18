@@ -59,8 +59,6 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
             whitelistedPlayers: worldInfo["Whitelisted"],
         }
 
-        console.log(`[${Date.now()}] [WorldInfo] Fetched worldinfo for ${worldID}`)
-
         response.body = data
         response.status = 200
     } catch (err) {
@@ -87,7 +85,6 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
     }
 
     const queryResult = await sql`SELECT * FROM worlds WHERE world_name ~* ${worldName} LIMIT ${limit}`;
-    console.log(`[SearchWorld] Fetched ${queryResult.length} results for "${worldName}".`)
 
     response.body = queryResult
     response.status = 200;
