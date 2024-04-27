@@ -67,6 +67,22 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
     }
 }
 
+const getActiveWorlds = async ({ request, response }: { request: Request, response: Response }) => {
+    const queryParams = request.url.searchParams
+    let sortMethod: string = queryParams.get('sort') || "desc";
+
+    if ( sortMethod.includes("asc") ) {
+        sortMethod = "ASC";
+    } else if ( sortMethod.includes("desc") ) {
+        sortMethod = "DESC";
+    }
+    console.log({sortMethod})
+
+    const queryResult = await sql`SELECT * FROM worlds WHERE active_players > 0 ORDER BY active_players ${ sql.unsafe(sortMethod) }`;
+    response.body = queryResult
+    response.status = 200
+}
+
 const searchWorld = async ({ request, response }: { request: Request, response: Response }) => {
     const queryParams = request.url.searchParams
     const worldName: string | null = queryParams.get('query')
@@ -130,4 +146,4 @@ const updateWorld = async ({ response, state }: { response: Response, state: Sta
     }
 }
 
-export { getWorldInfo, searchWorld, insertWorld, updateWorld }
+export { getWorldInfo, getActiveWorlds, searchWorld, insertWorld, updateWorld }
