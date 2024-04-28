@@ -75,6 +75,8 @@ const getActiveWorlds = async ({ request, response }: { request: Request, respon
         sortMethod = "ASC";
     } else if ( sortMethod.includes("desc") ) {
         sortMethod = "DESC";
+    } else {
+        sortMethod = "DESC";
     }
 
     const queryResult = await sql`SELECT * FROM worlds WHERE active_players > 0 ORDER BY active_players ${ sql.unsafe(sortMethod) }`;
