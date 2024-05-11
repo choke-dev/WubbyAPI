@@ -22,6 +22,10 @@ const sql = postgres({
 
 const numberRegex = /^\d+$/;
 
+// CONFIG
+const MAX_QUERY_LIMIT: number = 100;
+const MIN_QUERY_LIMIT: number = 1;
+
 const getWorldInfo = async ({ response, params }: { response: Response, params: { worldid: string } }) => {
     const worldID = params.worldid
 
@@ -87,7 +91,7 @@ const getActiveWorlds = async ({ request, response }: { request: Request, respon
 const searchWorld = async ({ request, response }: { request: Request, response: Response }) => {
     const queryParams = request.url.searchParams
     const worldName: string | null = queryParams.get('query')
-    const limit: number = Number(request.url.searchParams.get('limit')) || 50
+    const limit: number = Math.min(Number(request.url.searchParams.get('limit')) || MIN_QUERY_LIMIT, MAX_QUERY_LIMIT)
 
     if (!worldName) {
         response.body = { errors: [{ message: 'Missing "query" parameter value' }] };

@@ -17,7 +17,7 @@ const validateWorldData = async (ctx: Context, next: Next) => {
         if (!requestBody) return;
     
         // JSON Key Check
-        const requiredKeys = ["world_id", "world_name", "world_description"];
+        const requiredKeys = ["world_id", "world_name", "world_description", "active_players"];
         const missingKeys = requiredKeys.filter(key => !(key in requestBody));
         if (missingKeys.length > 0) {
             ctx.response.body = { errors: [{ message: `Missing keys in body: ${missingKeys.join(", ")}` }] };

@@ -33,6 +33,7 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
             description: data["Status"],
             equippedCosmetics: data["E"],
             favoriteWorlds: data["Favorites"],
+            // isWubbyPlusMember: "C_Plus" in (data["Inventory"] || {}),
             joinDate: new Date(data["JoinDate"] * 1000).toISOString(),
             lastBanReason: data["Reason"],
             inventory: data["Inventory"],
