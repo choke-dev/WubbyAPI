@@ -1,14 +1,23 @@
-import { Universe, DataStore } from "npm:@daw588/roblox.js";
-import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
 import { Request, Response, State } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
+import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
+import { Universe, DataStore } from "npm:@daw588/roblox.js";
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 import { WubbyAPI_WorldInfo } from '../types/world.types.ts'
 
 const env = await load();
-
 const universeId = +env["UNIVERSE_ID"];
 const apiKey = env["API_KEY"];
+const numberRegex = /^\d+$/;
+
+/// CONFIG ///
+const MAX_QUERY_LIMIT: number = 100;
+const MIN_QUERY_LIMIT: number = 1;
+
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 const universe = new Universe(universeId, apiKey);
 const worlds = new DataStore(universe, "Games");
@@ -20,16 +29,17 @@ const sql = postgres({
   password : env["DATABASE_PASSWORD"],
 })
 
-const numberRegex = /^\d+$/;
+/////////////////////////////////////////////////////////////////////////////////////
 
-// CONFIG
-const MAX_QUERY_LIMIT: number = 100;
-const MIN_QUERY_LIMIT: number = 1;
+const getWorldCount = async ({ response }: { response: Response }) => {
+    response.body = { count: 144667 }
+    response.status = 200
+    return;
+}
 
 const getWorldInfo = async ({ response, params }: { response: Response, params: { worldid: string } }) => {
-    const worldID = params.worldid
+    const worldID = params?.worldid
 
-    // idk how to use middlewares
     if (!numberRegex.test(worldID)) {
         response.body = { errors: [{ message: `Invalid world ID. (Received: ${worldID})` }] };
         response.status = 400;
@@ -42,8 +52,16 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
             worlds.GetAsync(worldID).then(response => response[0])
         ]) as [number[], WubbyAPI_WorldInfo];
 
+        const activePlayersJson = worldInfo["ActivePlayers"].map((player: [string, string, number]) => {
+            return {
+                username: player[0],
+                displayName: player[1],
+                permission: player[2]
+            }
+        })
+
         const data = {
-            activePlayers: worldInfo["ActivePlayers"],
+            activePlayers: activePlayersJson,
             bannedPlayers: worldInfo["Banned"],
             blocks: worldInfo["Blocks"],
             creator: worldInfo["Owner"],
@@ -151,4 +169,4 @@ const updateWorld = async ({ response, state }: { response: Response, state: Sta
     }
 }
 
-export { getWorldInfo, getActiveWorlds, searchWorld, insertWorld, updateWorld }
+export { getWorldCount, getWorldInfo, getActiveWorlds, searchWorld, insertWorld, updateWorld }

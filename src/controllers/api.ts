@@ -1,6 +1,6 @@
-import { Request, Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
+import { Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
-const healthCheck = async ({ request, response }: { request: Request, response: Response }) => {
+const healthCheck = async ({ response }: { response: Response }) => {
     response.body = {
         message: 'OK'
     };

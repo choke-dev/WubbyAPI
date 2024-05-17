@@ -18,6 +18,7 @@
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:path-to-regexp@6.2.1": "npm:path-to-regexp@6.2.1",
       "npm:swagger-jsdoc": "npm:swagger-jsdoc@6.2.8",
+      "npm:swagger-jsdoc@6.2.8": "npm:swagger-jsdoc@6.2.8",
       "npm:swagger-ui-express": "npm:swagger-ui-express@5.0.0_express@4.19.2"
     },
     "jsr": {
