@@ -22,6 +22,7 @@ deno run -A ./src/server.ts
 ## Routes
 
 ```
+GET      /v1/worldCount
 GET      /v1/worldInfo/:id
 GET      /v1/userInfo/:id
 GET      /v1/activeWorlds?sort= // asc or desc
