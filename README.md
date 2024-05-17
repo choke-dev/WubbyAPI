@@ -16,7 +16,7 @@ A RESTful API built in <sub><img src="https://upload.wikimedia.org/wikipedia/com
 
 # Run
 ```
-deno run --allow-read --allow-env --allow-net ./src/server.ts
+deno run -A ./src/server.ts
 ```
 
 ## Routes
