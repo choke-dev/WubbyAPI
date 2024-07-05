@@ -6,10 +6,10 @@ import { Universe, DataStore } from "npm:@daw588/roblox.js";
 /////////////////////////////////////////////////////////////////////////////////////
 
 import { WubbyAPI_WorldInfo } from '../types/world.types.ts'
+import { getEnv } from "../services/env.service.ts";
 
-const env = await load();
-const universeId = +env["UNIVERSE_ID"];
-const apiKey = env["API_KEY"];
+const universeId = getEnv("UNIVERSE_ID")
+const apiKey =  getEnv("API_KEY");
 const numberRegex = /^\d+$/;
 
 /// CONFIG ///
@@ -19,14 +19,21 @@ const MIN_QUERY_LIMIT: number = 1;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-const universe = new Universe(universeId, apiKey);
+if (!apiKey) {
+    throw new Error("No open cloud API Key was found")
+}
+if (!universeId) {
+    throw new Error("No universe ID was found")
+}
+
+const universe = new Universe(+universeId, apiKey);
 const worlds = new DataStore(universe, "Games");
 const sql = postgres({
-  host     : env["DATABASE_HOST"],
+  host     : getEnv("DATABASE_HOST"),
   port     : 5432,
-  database : env["DATABASE_NAME"],
-  username : env["DATABASE_USER"],
-  password : env["DATABASE_PASSWORD"],
+  database : getEnv("DATABASE_NAME"),
+  username : getEnv("DATABASE_USER"),
+  password : getEnv("DATABASE_PASSWORD"),
 })
 
 /////////////////////////////////////////////////////////////////////////////////////

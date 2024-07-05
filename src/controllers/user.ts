@@ -1,14 +1,20 @@
 import { Universe, DataStore, DataStoreKeyInfo } from "npm:@daw588/roblox.js";
-import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
 import { Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
 import type { WubbyAPI_UserInfo } from '../types/user.types.ts'
+import { getEnv } from "../services/env.service.ts";
 
-const env = await load();
-const universeId = +env["UNIVERSE_ID"];
-const apiKey = env["API_KEY"];
+const universeId = getEnv("UNIVERSE_ID");
+const apiKey = getEnv("API_KEY");
 
-const universe = new Universe(universeId, apiKey);
+if (!apiKey) {
+    throw new Error("No open cloud API Key was found")
+}
+if (!universeId) {
+    throw new Error("No universe ID was found")
+}
+
+const universe = new Universe(+universeId, apiKey);
 const users = new DataStore(universe, "MyGames");
 
 const numberRegex = /^\d+$/;
