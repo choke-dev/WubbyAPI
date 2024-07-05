@@ -5,5 +5,6 @@ const localEnv = await load({
 });
 
 export function getEnv(key: string) {
-    return localEnv[key] || Deno.env.get(key);
+    const keyvalue = localEnv[key] ?? Deno.env.get(key);
+    return keyvalue
 }
