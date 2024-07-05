@@ -1,6 +1,5 @@
 import { Request, Response, State } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import postgres from "https://deno.land/x/postgresjs@v3.4.4/mod.js";
-import { load } from "https://deno.land/std@0.220.0/dotenv/mod.ts";
 import { Universe, DataStore } from "npm:@daw588/roblox.js";
 
 /////////////////////////////////////////////////////////////////////////////////////
