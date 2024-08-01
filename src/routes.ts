@@ -20,9 +20,9 @@ router.get('/v1/worldinfo/:worldid', getWorldInfo);
 router.get('/v1/userinfo/:userid', getUserInfo);
 
 router.get('/v1/searchworld', searchWorld);
-router.get('/v1/activeworlds', getActiveWorlds);
-router.post('/v1/insertworld', validateWorldData, insertWorld);
-router.patch('/v1/updateworld', validateWorldData, updateWorld);
+router.get('/v1/activeworlds', auth([Deno.env.get("APIKEY_LOCKED")!]), getActiveWorlds);
+router.post('/v1/insertworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, insertWorld);
+router.patch('/v1/updateworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, updateWorld);
 
 router.get("/(.*)", (context: Context) => {
     if (context.request.url.pathname.startsWith("/favicon.ico")) {
