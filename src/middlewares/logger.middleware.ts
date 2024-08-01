@@ -1,5 +1,4 @@
 import { Context, Next } from "https://deno.land/x/oak@14.2.0/mod.ts";
-import { sql } from '../services/database.service.ts';
 
 const requestLogger = async (ctx: Context, next: Next) => {
     await next();
@@ -29,14 +28,6 @@ const requestLogger = async (ctx: Context, next: Next) => {
         responseStatus: responseStatus,
         responseBody: responseBody
     };
-
-    try {
-        await sql.begin(async sql => {
-            await sql` INSERT INTO requests ${sql(data)} `;
-        });
-    } catch(err) {
-        console.log(`Failed to save request data to database: ${err}`);
-    }
 
     ctx.response.headers.set("x-request-id", requestUUID)
 };
