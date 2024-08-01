@@ -8,7 +8,7 @@ Wubby API
 A RESTful API built in <sub><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Deno_2021.svg/1024px-Deno_2021.svg.png" height="20"></sub> Deno for the Roblox Building Game, <a href="https://www.roblox.com/games/12519560096">Wubby</a>
 </p>
 
-***
+*** 
 
 # Info
 - This API uses PostgreSQL for its database.
