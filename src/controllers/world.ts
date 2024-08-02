@@ -33,12 +33,6 @@ const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPAB
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-const getWorldCount = async ({ response }: { response: Response }) => {
-  response.body = { count: 144667 }
-  response.status = 200
-  return;
-}
-
 const getWorldInfo = async ({ response, params }: { response: Response, params: { worldid: string } }) => {
   const worldID = params?.worldid
   
@@ -198,4 +192,4 @@ const updateWorld = async ({ response, state }: { response: Response, state: Sta
   }
 }
 
-export { getWorldCount, getWorldInfo, getActiveWorlds, searchWorld, insertWorld, updateWorld }
+export { getWorldInfo, getActiveWorlds, searchWorld, insertWorld, updateWorld }

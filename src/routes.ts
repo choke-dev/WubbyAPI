@@ -1,8 +1,8 @@
 import { Context, Router } from "https://deno.land/x/oak@14.2.0/mod.ts"
 
 // controllers //
-import { healthCheck } from './controllers/api.ts';
-import { getWorldCount, getWorldInfo, searchWorld, insertWorld, updateWorld, getActiveWorlds } from './controllers/world.ts';
+import { healthCheck, statistics } from './controllers/api.ts';
+import { getWorldInfo, searchWorld, insertWorld, updateWorld, getActiveWorlds } from './controllers/world.ts';
 import { getUserInfo } from "./controllers/user.ts";
 
 // middlewares //
@@ -14,8 +14,8 @@ const router = new Router();
 
 
 router.get('/', healthCheck);
+router.get('/statistics', statistics)
 
-router.get('/v1/worldcount', getWorldCount)
 router.get('/v1/worldinfo/:worldid', getWorldInfo);
 router.get('/v1/userinfo/:userid', getUserInfo);
 
