@@ -50,6 +50,7 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
         }
 
         response.body = formattedData
+        response.headers.set("Access-Control-Allow-Origin", "*")
         response.status = 200
     } catch (err) {
         response.body = { errors: [err] };

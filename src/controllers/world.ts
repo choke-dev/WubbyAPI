@@ -78,6 +78,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
     }
     
     response.body = data
+    response.headers.set("Access-Control-Allow-Origin", "*")
     response.status = 200
   } catch (err) {
     response.body = { errors: [err] };
