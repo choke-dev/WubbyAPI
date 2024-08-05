@@ -38,18 +38,25 @@ const healthCheck = async ({ response }: { response: Response }) => {
 }
 
 const statistics = async ({ response }: { response: Response }) => {
-    const [worldCount, featuredWorldCount] = await batchPromise([
+    const [totalWorldCount, totalFeaturedWorldCount, totalBlockCount] = await batchPromise([
         () => supabase.from('worlds').select('id', { count: 'exact', head: true }).then(response => response.count),
         // @ts-ignore i offer you: number[], take it or leave it
-        () => worlds.GetAsync("FEATURED").then((response: number[]) => response[0].length)
+        () => worlds.GetAsync("FEATURED").then((response: number[]) => response[0].length),
+        () => supabase.from('worlds').select('blocks').then(response => response.data)
     ]);
+
+    let totalBlocks = 0;
+    for (const item of totalBlockCount ?? []) {
+        totalBlocks += item.blocks;
+    }
 
     response.headers.set("Access-Control-Allow-Origin", "*");
     response.body = {
         worlds: {
-            total: worldCount || 0,
-            featured: featuredWorldCount || 0
-        }
+            total: totalWorldCount || 0,
+            featured: totalFeaturedWorldCount || 0
+        },
+        blocks: totalBlocks
     };
     response.status = 200;
 }
