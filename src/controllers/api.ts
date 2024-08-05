@@ -44,6 +44,7 @@ const statistics = async ({ response }: { response: Response }) => {
         () => worlds.GetAsync("FEATURED").then((response: number[]) => response[0].length)
     ]);
 
+    response.headers.set("Access-Control-Allow-Origin", "*");
     response.body = {
         worlds: {
             total: worldCount || 0,
