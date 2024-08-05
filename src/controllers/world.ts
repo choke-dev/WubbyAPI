@@ -87,33 +87,32 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
 }
 
 const getActiveWorlds = async ({ request, response }: { request: Request, response: Response }) => {
-  const queryParams = request.url.searchParams
-  let sortMethod: string = queryParams.get('sort') || "desc";
-  
-  if ( sortMethod.includes("asc") ) {
-    sortMethod = "ASC";
-  } else if ( sortMethod.includes("desc") ) {
-    sortMethod = "DESC";
-  } else {
-    sortMethod = "DESC";
-  }
-  
-  // const queryResult = await sql`SELECT * FROM worlds WHERE active_players > 0 ORDER BY active_players ${ sql.unsafe(sortMethod) }`;
-  const { data, error } = await supabase
-    .from('worlds')
-    .select('*')
-    .filter('active_players', 'gt', 0)
-    .order('active_players', { ascending: sortMethod === "ASC" })
-  
-  if (error) {
-    response.body = { errors: [error] }
-    response.status = 500
-    return
-  }
+  try {
+    const activeWorlds = await worlds.GetAsync("ACTIVES")
+      .then(response => response[0]) as Record<string, { Blocks: number, ActivePlayers: number, GameId: number, MaxPlayers: number, Name: string, Owner: number, Image: string, State: number }>;
 
-  response.body = data
-  response.status = 200
+    const data = Object.values(activeWorlds).map((world) => {
+      return {
+        blocks: world.Blocks,
+        activePlayers: world.ActivePlayers,
+        worldId: world.GameId,
+        maxPlayers: world.MaxPlayers,
+        name: world.Name,
+        creator: world.Owner,
+        thumbnails: world.Image,
+        privacyState: world.State
+      };
+    });
+
+    response.body = data;
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.status = 200;
+  } catch (err) {
+    response.body = { errors: [err] };
+    response.status = err.status || 500;
+  }
 }
+
 
 const searchWorld = async ({ request, response }: { request: Request, response: Response }) => {
   const queryParams = request.url.searchParams
