@@ -46,7 +46,7 @@ const statistics = async ({ response }: { response: Response }) => {
         () => supabase.rpc('sum_blocks').then(response => response.data)
     ]);
 
-    response.headers.set("Access-Control-Allow-Origin", "*");
+    
     response.body = {
         worlds: {
             active: Object.keys(activeWorlds).length || 0,

@@ -35,7 +35,7 @@ const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPAB
 
 const getWorldInfo = async ({ response, params }: { response: Response, params: { worldid: string } }) => {
   const worldID = params?.worldid
-  response.headers.set("Access-Control-Allow-Origin", "*");
+  
 
   if (!numberRegex.test(worldID)) {
     response.body = { errors: [{ message: `Invalid world ID. (Received: ${worldID})` }] };
@@ -91,7 +91,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   const queryParams = request.url.searchParams
   const worldName: string | null = queryParams.get('query')
   const limit: number = Math.min(Number(request.url.searchParams.get('limit')) || MIN_QUERY_LIMIT, MAX_QUERY_LIMIT)
-  response.headers.set("Access-Control-Allow-Origin", "*");
+  
 
   if (!worldName) {
     response.body = { errors: [{ message: 'Missing "query" parameter value' }] };
