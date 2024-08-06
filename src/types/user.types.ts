@@ -1,4 +1,4 @@
-type WubbyAPI_UserInfo = {
+type WubbyUserInfo = {
     /**
      * Determines if the player is banned / staff member / etc.
      */
@@ -61,4 +61,4 @@ type WubbyAPI_UserInfo = {
     Wubbits: number,
 }
 
-export type { WubbyAPI_UserInfo }
+export type { WubbyUserInfo }

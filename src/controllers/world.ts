@@ -4,8 +4,9 @@ import { Universe, DataStore } from "npm:@daw588/roblox.js";
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-import { WubbyAPI_WorldInfo } from '../types/world.types.ts'
+import { WubbyWorldInfo } from '../types/world.types.ts'
 import { getEnv } from "../services/env.service.ts";
+import { WubbyAPIWorldInfo } from "../../index.d.ts";
 
 const universeId = getEnv("UNIVERSE_ID")
 const apiKey =  getEnv("API_KEY");
@@ -36,7 +37,7 @@ const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPAB
 const getWorldInfo = async ({ response, params }: { response: Response, params: { worldid: string } }) => {
   const worldID = params?.worldid
   
-
+  
   if (!numberRegex.test(worldID)) {
     response.body = { errors: [{ message: `Invalid world ID. (Received: ${worldID})` }] };
     response.status = 400;
@@ -46,22 +47,28 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
   try {
     const [featuredWorlds, worldInfo] = await Promise.all([
       worlds.GetAsync("FEATURED").then(response => response[0]),
-      worlds.GetAsync(worldID).then(response => response[0])
-    ]) as [number[], WubbyAPI_WorldInfo];
-    
-    const activePlayersJson = worldInfo["ActivePlayers"].map((player: [string, string, number]) => {
+      worlds.GetAsync(worldID).then(response => response[0]),
+    ]) as [number[], WubbyWorldInfo];
+
+    const creatorInfo = await fetch(`https://users.roblox.com/v1/users/${worldInfo["Owner"]}`).then(res => res.json());
+    const activePlayers = typeof worldInfo["ActivePlayers"] === "object" ? worldInfo["ActivePlayers"].map((player: [string, string, number]) => {
       return {
         username: player[0],
         displayName: player[1],
         permission: player[2]
       }
-    })
-    
-    const data = {
-      activePlayers: activePlayersJson,
+    }) : worldInfo["ActivePlayers"];
+
+
+    const data: WubbyAPIWorldInfo = {
+      activePlayers: activePlayers,
       bannedPlayers: worldInfo["Banned"],
       blocks: worldInfo["Blocks"],
-      creator: worldInfo["Owner"],
+      creator: {
+        id: worldInfo["Owner"],
+        name: creatorInfo.name,
+        displayName: creatorInfo.displayName
+      },
       description: worldInfo["Description"],
       favorites: worldInfo["Favs"],
       isFeatured: featuredWorlds.includes(Number(worldID)),
@@ -70,11 +77,11 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
       privateWhitelistedPlayers: worldInfo["PWhitelist"],
       privacyState: worldInfo["State"],
       serverJobId: worldInfo["Server"],
-      thumbnails: worldInfo["Image"],
+      thumbnails: +worldInfo["Image"],
       thirdPartyWarpInfo: worldInfo["WI"],
       thirdPartyWarps: worldInfo["AW"],
       visits: worldInfo["Visits"],
-      worldId: worldInfo["GameId"],
+      id: worldInfo["GameId"],
       whitelistedPlayers: worldInfo["Whitelisted"],
     }
     
@@ -92,7 +99,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   const worldName: string | null = queryParams.get('query')
   const limit: number = Math.min(Number(request.url.searchParams.get('limit')) || MIN_QUERY_LIMIT, MAX_QUERY_LIMIT)
   
-
+  
   if (!worldName) {
     response.body = { errors: [{ message: 'Missing "query" parameter value' }] };
     response.status = 400;
@@ -107,20 +114,36 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   
   // const queryResult = await sql`SELECT * FROM worlds WHERE world_name ~* ${worldName} LIMIT ${limit}`;
   
-  const { data, error } = await supabase
-    .from('worlds')
-    .select('*')
-    .ilike('name', `%${worldName}%`)
-    .limit(limit)
+  let { data, error } = await supabase
+  .from('worlds')
+  .select('*')
+  .ilike('name', `%${worldName}%`)
+  .limit(limit)
+  
+  const creatorUserIds = data?.map((world: WubbyAPIWorldInfo) => world.creator) || []
+  const usersResponse = await fetch(`https://users.roblox.com/v1/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ "userIds": creatorUserIds, "excludeBannedUsers": false }),
+  }).then(res => res.json()) as { data: { hasVerifiedBadge: boolean, id: number, name: string, displayName: string }[] }
   
   if (error) {
     response.body = { errors: [error] }
     response.status = 500
     return
   }
+  
+  data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
+    const creator = usersResponse.data.find(user => user.id === world.creator?.id)
+    return {
+      ...world,
+      creator: creator ? { id: world.creator, name: creator?.name, displayName: creator?.displayName } : undefined
+    }
+  }) as (WubbyAPIWorldInfo & { creator?: { id: number, name?: string, displayName?: string } })[]
 
   response.body = data
-  
   response.status = 200;
 }
 

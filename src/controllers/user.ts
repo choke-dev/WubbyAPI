@@ -1,7 +1,7 @@
 import { Universe, DataStore, DataStoreKeyInfo } from "npm:@daw588/roblox.js";
 import { Response } from "https://deno.land/x/oak@14.2.0/mod.ts";
 
-import type { WubbyAPI_UserInfo } from '../types/user.types.ts'
+import type { WubbyUserInfo } from '../types/user.types.ts'
 import { getEnv } from "../services/env.service.ts";
 
 const universeId = getEnv("UNIVERSE_ID");
@@ -30,7 +30,7 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
     }
 
     try {
-        const [data] = await users.GetAsync(userId) as [WubbyAPI_UserInfo, DataStoreKeyInfo];
+        const [data] = await users.GetAsync(userId) as [WubbyUserInfo, DataStoreKeyInfo];
 
         const banExpirationDate = (data["S"] ? new Date(data["S"] * 1000).toISOString() : null)
 

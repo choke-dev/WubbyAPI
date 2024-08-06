@@ -12,50 +12,50 @@ const worlds = new DataStore(universe, "Games");
 
 type FunctionType<T> = () => T | Promise<T>;
 function batchPromise<T>(functions: FunctionType<T>[]): Promise<T[]> {
-    const promises = functions.map(func => {
-      return new Promise<T>((resolve, reject) => {
-        try {
-          const result = func();
-          if (result instanceof Promise) {
-            result.then(resolve).catch(reject);
-          } else {
-            resolve(result);
-          }
-        } catch (error) {
-          reject(error);
+  const promises = functions.map(func => {
+    return new Promise<T>((resolve, reject) => {
+      try {
+        const result = func();
+        if (result instanceof Promise) {
+          result.then(resolve).catch(reject);
+        } else {
+          resolve(result);
         }
-      });
+      } catch (error) {
+        reject(error);
+      }
     });
+  });
   
-    return Promise.all(promises);
-  }
+  return Promise.all(promises);
+}
 
 const healthCheck = async ({ response }: { response: Response }) => {
-    response.body = {
-        message: 'OK'
-    };
-    response.status = 200;
+  response.body = {
+    message: 'OK'
+  };
+  response.status = 200;
 }
 
 const statistics = async ({ response }: { response: Response }) => {
-    const [totalWorldCount, totalFeaturedWorldCount, activeWorlds, totalBlockCount] = await batchPromise([
-        () => supabase.from('worlds').select('id', { count: 'exact', head: true }).then(response => response.count),
-        // @ts-ignore i offer you: number[], take it or leave it
-        () => worlds.GetAsync("FEATURED").then((response: number[]) => response[0].length),
-        () => worlds.GetAsync("ACTIVES").then(response => response[0]) as unknown as Record<string, { Blocks: number, ActivePlayers: number, GameId: number, MaxPlayers: number, Name: string, Owner: number, Image: string, State: number }>,
-        () => supabase.rpc('sum_blocks').then(response => response.data)
-    ]);
-
-    
-    response.body = {
-        worlds: {
-            active: Object.keys(activeWorlds).length || 0,
-            total: totalWorldCount || 0,
-            featured: totalFeaturedWorldCount || 0
-        },
-        blocks: totalBlockCount
-    };
-    response.status = 200;
+  const [totalWorldCount, totalFeaturedWorldCount, activeWorlds, totalBlockCount] = await batchPromise([
+    () => supabase.from('worlds').select('id', { count: 'exact', head: true }).then(response => response.count),
+    // @ts-ignore i offer you: number[], take it or leave it
+    () => worlds.GetAsync("FEATURED").then((response: number[]) => response[0].length),
+    () => worlds.GetAsync("ACTIVES").then(response => response[0]) as unknown as Record<string, { Blocks: number, ActivePlayers: number, GameId: number, MaxPlayers: number, Name: string, Owner: number, Image: string, State: number }>,
+    () => supabase.rpc('sum_blocks').then(response => response.data)
+  ]);
+  
+  
+  response.body = {
+    worlds: {
+      active: Object.keys(activeWorlds).length || 0,
+      total: totalWorldCount || 0,
+      featured: totalFeaturedWorldCount || 0
+    },
+    blocks: totalBlockCount
+  };
+  response.status = 200;
 }
 
 export { healthCheck, statistics };

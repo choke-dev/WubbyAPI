@@ -1,7 +1,9 @@
+import { UUID } from "node:crypto";
+
 /**
  * The response from the Wubby API when requesting a world's information.
  */
-type WubbyAPI_WorldInfo = {
+type WubbyWorldInfo = {
     /**
      * Determines if the world allows third party warps to other wubby worlds.
      */
@@ -67,7 +69,7 @@ type WubbyAPI_WorldInfo = {
     /**
      * The roblox server jobid that the world is hosted on.
      */
-    Server: string;
+    Server: UUID;
 
     /**
      * The world's privacy state.
@@ -97,4 +99,4 @@ type WubbyAPI_WorldInfo = {
     Whitelisted: number[];
 }
 
-export type { WubbyAPI_WorldInfo }
+export type { WubbyWorldInfo }
