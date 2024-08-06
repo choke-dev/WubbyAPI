@@ -136,12 +136,15 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   }
   
   data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
-    const creator = usersResponse.data.find(user => user.id === world.creator?.id)
+    // @ts-ignore data stored on supabase is still just the id
+    const creator = usersResponse.data.find(user => user.id === world.creator)
     return {
       ...world,
       creator: creator ? { id: world.creator, name: creator?.name, displayName: creator?.displayName } : undefined
     }
   }) as (WubbyAPIWorldInfo & { creator?: { id: number, name?: string, displayName?: string } })[]
+
+  console.log(data)
 
   response.body = data
   response.status = 200;
