@@ -25,7 +25,6 @@ deno run -A ./src/server.ts
 GET      /v1/worldCount
 GET      /v1/worldInfo/:id
 GET      /v1/userInfo/:id
-GET      /v1/activeWorlds?sort= // asc or desc
 GET      /v1/searchWorld?query= &limit=
 POST     /v1/insertWorld
 PATCH    /v1/updateWorld

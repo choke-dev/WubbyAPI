@@ -2,7 +2,7 @@ import { Context, Router } from "https://deno.land/x/oak@14.2.0/mod.ts"
 
 // controllers //
 import { healthCheck, statistics } from './controllers/api.ts';
-import { getWorldInfo, searchWorld, insertWorld, updateWorld, getActiveWorlds } from './controllers/world.ts';
+import { getWorldInfo, searchWorld, insertWorld, updateWorld } from './controllers/world.ts';
 import { getUserInfo } from "./controllers/user.ts";
 
 // middlewares //
@@ -20,7 +20,6 @@ router.get('/v1/worldinfo/:worldid', getWorldInfo);
 router.get('/v1/userinfo/:userid', getUserInfo);
 
 router.get('/v1/searchworld', searchWorld);
-router.get('/v1/activeworlds', getActiveWorlds);
 router.post('/v1/insertworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, insertWorld);
 router.patch('/v1/updateworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, updateWorld);
 

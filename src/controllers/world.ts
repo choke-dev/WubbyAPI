@@ -35,7 +35,8 @@ const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPAB
 
 const getWorldInfo = async ({ response, params }: { response: Response, params: { worldid: string } }) => {
   const worldID = params?.worldid
-  
+  response.headers.set("Access-Control-Allow-Origin", "*");
+
   if (!numberRegex.test(worldID)) {
     response.body = { errors: [{ message: `Invalid world ID. (Received: ${worldID})` }] };
     response.status = 400;
@@ -78,7 +79,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
     }
     
     response.body = data
-    response.headers.set("Access-Control-Allow-Origin", "*")
+    
     response.status = 200
   } catch (err) {
     response.body = { errors: [err] };
@@ -86,39 +87,12 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
   }
 }
 
-const getActiveWorlds = async ({ request, response }: { request: Request, response: Response }) => {
-  try {
-    const activeWorlds = await worlds.GetAsync("ACTIVES")
-      .then(response => response[0]) as Record<string, { Blocks: number, ActivePlayers: number, GameId: number, MaxPlayers: number, Name: string, Owner: number, Image: string, State: number }>;
-
-    const data = Object.values(activeWorlds).map((world) => {
-      return {
-        blocks: world.Blocks,
-        activePlayers: world.ActivePlayers,
-        worldId: world.GameId,
-        maxPlayers: world.MaxPlayers,
-        name: world.Name,
-        creator: world.Owner,
-        thumbnails: world.Image,
-        privacyState: world.State
-      };
-    });
-
-    response.body = data;
-    response.headers.set("Access-Control-Allow-Origin", "*");
-    response.status = 200;
-  } catch (err) {
-    response.body = { errors: [err] };
-    response.status = err.status || 500;
-  }
-}
-
-
 const searchWorld = async ({ request, response }: { request: Request, response: Response }) => {
   const queryParams = request.url.searchParams
   const worldName: string | null = queryParams.get('query')
   const limit: number = Math.min(Number(request.url.searchParams.get('limit')) || MIN_QUERY_LIMIT, MAX_QUERY_LIMIT)
-  
+  response.headers.set("Access-Control-Allow-Origin", "*");
+
   if (!worldName) {
     response.body = { errors: [{ message: 'Missing "query" parameter value' }] };
     response.status = 400;
@@ -146,7 +120,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   }
 
   response.body = data
-  response.headers.set("Access-Control-Allow-Origin", "*");
+  
   response.status = 200;
 }
 
@@ -192,4 +166,4 @@ const updateWorld = async ({ response, state }: { response: Response, state: Sta
   }
 }
 
-export { getWorldInfo, getActiveWorlds, searchWorld, insertWorld, updateWorld }
+export { getWorldInfo, searchWorld, insertWorld, updateWorld }

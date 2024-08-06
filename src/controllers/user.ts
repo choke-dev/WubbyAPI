@@ -21,6 +21,7 @@ const numberRegex = /^\d+$/;
 
 const getUserInfo = async ({ response, params }: { response: Response, params: { userid: string } }) => {
     const userId = params.userid
+    response.headers.set("Access-Control-Allow-Origin", "*")
 
     if (!numberRegex.test(userId)) {
         response.body = { errors: [{ message: `Invalid user ID. (Received: ${userId})` }] };
@@ -50,7 +51,6 @@ const getUserInfo = async ({ response, params }: { response: Response, params: {
         }
 
         response.body = formattedData
-        response.headers.set("Access-Control-Allow-Origin", "*")
         response.status = 200
     } catch (err) {
         response.body = { errors: [err] };
