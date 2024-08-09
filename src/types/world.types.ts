@@ -44,7 +44,7 @@ type WubbyWorldInfo = {
      * The world's thumbnail id or an array of thumbnail ids if the world has
      * multiple thumbnails.
      */
-    Image: string | string[];
+    Image: number | string | string[];
 
     /**
      * The max number of players allowed in the world.

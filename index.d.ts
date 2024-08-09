@@ -26,7 +26,7 @@ interface WubbyAPIWorldInfo {
   serverJobId: UUID;
   thirdPartyWarpInfo: boolean;
   thirdPartyWarps: boolean;
-  thumbnails: number | number[];
+  thumbnails: number[];
   visits: number;
   whitelistedPlayers: number[];
 }

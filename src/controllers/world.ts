@@ -58,6 +58,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
         permission: player[2]
       }
     }) : worldInfo["ActivePlayers"];
+    const thumbnails = Array.isArray(worldInfo["Image"]) ? worldInfo["Image"].map(img => Number(img)) : typeof worldInfo["Image"] === "string" ? [Number(worldInfo["Image"])] : [worldInfo["Image"]];
 
 
     const data: WubbyAPIWorldInfo = {
@@ -77,7 +78,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
       privateWhitelistedPlayers: worldInfo["PWhitelist"],
       privacyState: worldInfo["State"],
       serverJobId: worldInfo["Server"],
-      thumbnails: +worldInfo["Image"],
+      thumbnails: thumbnails,
       thirdPartyWarpInfo: worldInfo["WI"],
       thirdPartyWarps: worldInfo["AW"],
       visits: worldInfo["Visits"],
@@ -120,14 +121,14 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   .ilike('name', `%${worldName}%`)
   .limit(limit)
   
-  const creatorUserIds = data?.map((world: WubbyAPIWorldInfo) => world.creator) || []
+  const creatorUserIds = data?.map((world: WubbyAPIWorldInfo) => world.creator) || [];
   const usersResponse = await fetch(`https://users.roblox.com/v1/users`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ "userIds": creatorUserIds, "excludeBannedUsers": false }),
-  }).then(res => res.json()) as { data: { hasVerifiedBadge: boolean, id: number, name: string, displayName: string }[] }
+  }).then(res => res.json()) as { data: { hasVerifiedBadge: boolean, id: number, name: string, displayName: string }[] };
   
   if (error) {
     response.body = { errors: [error] }
@@ -136,15 +137,20 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   }
   
   data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
+    return {
+      ...world,
+      thumbnails: world.thumbnails?.map(thumbnail => Number(thumbnail)) || []
+    }
+  }) || [];
+  
+  data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
     // @ts-ignore data stored on supabase is still just the id
     const creator = usersResponse.data.find(user => user.id === world.creator)
     return {
       ...world,
       creator: creator ? { id: world.creator, name: creator?.name, displayName: creator?.displayName } : undefined
     }
-  }) as (WubbyAPIWorldInfo & { creator?: { id: number, name?: string, displayName?: string } })[]
-
-  console.log(data)
+  }) || [];
 
   response.body = data
   response.status = 200;
