@@ -121,6 +121,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   
   data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
     return Object.keys(world).sort().reduce((acc, key) => {
+      //@ts-ignore dont care
       acc[key] = world[key]
       return acc
     }, {} as Partial<WubbyAPIWorldInfo>) as WubbyAPIWorldInfo
