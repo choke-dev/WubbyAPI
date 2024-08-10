@@ -13,7 +13,7 @@ type WubbyWorldInfo = {
      * An array of active players in the world in the form of tuples with
      * [username, displayname, permissionlevel].
      */
-    ActivePlayers: [string, string, number][];
+    ActivePlayers: number | [string, string, number][];
 
     /**
      * An array of banned player userids.

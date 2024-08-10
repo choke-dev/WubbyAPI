@@ -7,9 +7,10 @@ import { Universe, DataStore } from "npm:@daw588/roblox.js";
 import { WubbyWorldInfo } from '../types/world.types.ts'
 import { getEnv } from "../services/env.service.ts";
 import { WubbyAPIWorldInfo } from "../../index.d.ts";
+import { parseWorldMetadata } from "../functions/parseWorldMetadata.ts";
 
-const universeId = getEnv("UNIVERSE_ID")
-const apiKey =  getEnv("API_KEY");
+const universeId = Deno.env.get("UNIVERSE_ID")
+const apiKey =  Deno.env.get("API_KEY");
 const numberRegex = /^\d+$/;
 
 /// CONFIG ///
@@ -45,46 +46,11 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
   }
   
   try {
-    const [featuredWorlds, worldInfo] = await Promise.all([
-      worlds.GetAsync("FEATURED").then(response => response[0]),
+    const [worldInfo] = await Promise.all([
       worlds.GetAsync(worldID).then(response => response[0]),
-    ]) as [number[], WubbyWorldInfo];
+    ]) as [WubbyWorldInfo];
 
-    const creatorInfo = await fetch(`https://users.roblox.com/v1/users/${worldInfo["Owner"]}`).then(res => res.json());
-    const activePlayers = typeof worldInfo["ActivePlayers"] === "object" ? worldInfo["ActivePlayers"].map((player: [string, string, number]) => {
-      return {
-        username: player[0],
-        displayName: player[1],
-        permission: player[2]
-      }
-    }) : worldInfo["ActivePlayers"];
-    const thumbnails = Array.isArray(worldInfo["Image"]) ? worldInfo["Image"].map(img => Number(img)) : typeof worldInfo["Image"] === "string" ? [Number(worldInfo["Image"])] : [worldInfo["Image"]];
-
-
-    const data: WubbyAPIWorldInfo = {
-      activePlayers: activePlayers,
-      bannedPlayers: worldInfo["Banned"],
-      blocks: worldInfo["Blocks"],
-      creator: {
-        id: worldInfo["Owner"],
-        name: creatorInfo.name,
-        displayName: creatorInfo.displayName
-      },
-      description: worldInfo["Description"],
-      favorites: worldInfo["Favs"],
-      isFeatured: featuredWorlds.includes(Number(worldID)),
-      maxPlayers: worldInfo["MaxPlayers"],
-      name: worldInfo["Name"],
-      privateWhitelistedPlayers: worldInfo["PWhitelist"],
-      privacyState: worldInfo["State"],
-      serverJobId: worldInfo["Server"],
-      thumbnails: thumbnails,
-      thirdPartyWarpInfo: worldInfo["WI"],
-      thirdPartyWarps: worldInfo["AW"],
-      visits: worldInfo["Visits"],
-      id: worldInfo["GameId"],
-      whitelistedPlayers: worldInfo["Whitelisted"],
-    }
+    const data = await parseWorldMetadata(worldInfo)
     
     response.body = data
     
@@ -134,7 +100,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
     response.body = { errors: [error] }
     response.status = 500
     return
-  }
+  } 
   
   data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
     return {
@@ -150,6 +116,14 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
       ...world,
       creator: creator ? { id: world.creator, name: creator?.name, displayName: creator?.displayName } : undefined
     }
+  }) || [];
+
+  
+  data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
+    return Object.keys(world).sort().reduce((acc, key) => {
+      acc[key] = world[key]
+      return acc
+    }, {} as Partial<WubbyAPIWorldInfo>) as WubbyAPIWorldInfo
   }) || [];
 
   response.body = data

@@ -12,7 +12,7 @@ type Inventory = {
 
 interface WubbyAPIWorldInfo {
   id: number;
-  activePlayers: string[] | { username: string, displayName: string, permission: number }[];
+  activePlayers: { username: string, displayName: string, permission: number }[];
   blocks: number;
   bannedPlayers: unknown[];
   creator: { id: number, name: string, displayName: string };
