@@ -87,15 +87,6 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
   .ilike('name', `%${worldName}%`)
   .limit(limit)
   
-  const creatorUserIds = data?.map((world: WubbyAPIWorldInfo) => world.creator) || [];
-  const usersResponse = await fetch(`https://users.roblox.com/v1/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ "userIds": creatorUserIds, "excludeBannedUsers": false }),
-  }).then(res => res.json()) as { data: { hasVerifiedBadge: boolean, id: number, name: string, displayName: string }[] };
-  
   if (error) {
     response.body = { errors: [error] }
     response.status = 500
@@ -108,17 +99,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
       thumbnails: world.thumbnails?.map(thumbnail => Number(thumbnail)) || []
     }
   }) || [];
-  
-  data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
-    // @ts-ignore data stored on supabase is still just the id
-    const creator = usersResponse.data.find(user => user.id === world.creator)
-    return {
-      ...world,
-      creator: creator ? { id: world.creator, name: creator?.name, displayName: creator?.displayName } : undefined
-    }
-  }) || [];
 
-  
   data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
     return Object.keys(world).sort().reduce((acc, key) => {
       //@ts-ignore dont care

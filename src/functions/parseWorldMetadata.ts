@@ -29,13 +29,12 @@ and return WubbyAPIWorldInfo
 export const parseWorldMetadata = async (world: WubbyWorldInfo) => {
     
     const requests = [
-        fetch(`https://users.roblox.com/v1/users/${world["Owner"]}`).then(response => response.json()),
         worldStore.GetAsync("FEATURED").then(response => response[0])
     ];
 
-    const [userResponse, featuredWorlds] = await Promise.all(requests) as [RobloxUsersAPIInfo, number[]];
+    const [featuredWorlds] = await Promise.all(requests) as [number[]];
 
-    const creatorInfo = { id: world["Owner"], name: userResponse["name"], displayName: userResponse["displayName"] }
+    const creatorInfo = world["Owner"]
     const featuredStatus = featuredWorlds.includes(world["GameId"])
     const thumbnails = Array.isArray(world["Image"]) ? world["Image"].map(img => Number(img)) : typeof world["Image"] === "string" ? [Number(world["Image"])] : [world["Image"]];
     let activePlayers;

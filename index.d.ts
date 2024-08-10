@@ -15,7 +15,7 @@ interface WubbyAPIWorldInfo {
   activePlayers: { username: string, displayName: string, permission: number }[];
   blocks: number;
   bannedPlayers: unknown[];
-  creator: { id: number, name: string, displayName: string };
+  creator: number;
   description: string;
   favorites: number;
   isFeatured: boolean;
