@@ -1,3 +1,4 @@
+import * as validasaur from "https://deno.land/x/validasaur/mod.ts";
 import { Request, Response, State } from "https://deno.land/x/oak@14.2.0/mod.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import { Universe, DataStore } from "npm:@daw588/roblox.js";
@@ -59,6 +60,51 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
     response.body = { errors: [err] };
     response.status = err.status;
   }
+}
+
+const batchGetWorldInfo = async ({ request, response }: { request: Request, response: Response }) => {
+  const requestbody: { worldIds: number[] } | null = await request.body.json().catch(() => null);
+
+  if (!requestbody) {
+    response.body = { errors: [{ message: "Missing request body" }] };
+    response.status = 400;
+    return;
+  }
+
+  //@ts-ignore no
+  const [status, errors] = await validasaur.validate(requestbody, {
+    worldIds: validasaur.validateArray(true, [validasaur.isNumber])
+  })
+
+  if (!status) {
+    response.body = { errors: errors };
+    response.status = 400;
+    return;
+  }
+
+  if (requestbody.worldIds.length === 0) {
+    response.body = [];
+    response.status = 200;
+    return;
+  }
+
+  if (requestbody.worldIds.length > MAX_QUERY_LIMIT) {
+    response.body = { errors: [{ message: `Too many worlds. Limit is ${MAX_QUERY_LIMIT}` }] };
+    response.status = 400;
+    return;
+  }
+
+  const worldPromises = requestbody.worldIds.map(worldID => 
+    worlds.GetAsync(String(worldID)).then(response => response[0])
+  )
+  
+  const worldsData = await Promise.all(worldPromises)
+  
+  //@ts-ignore no
+  const data = await Promise.all(worldsData.map((world: WubbyWorldInfo) => parseWorldMetadata(world)))
+
+  response.body = data
+  response.status = 200
 }
 
 const searchWorld = async ({ request, response }: { request: Request, response: Response }) => {
@@ -154,4 +200,4 @@ const updateWorld = async ({ response, state }: { response: Response, state: Sta
   }
 }
 
-export { getWorldInfo, searchWorld, insertWorld, updateWorld }
+export { getWorldInfo, batchGetWorldInfo, searchWorld, insertWorld, updateWorld }

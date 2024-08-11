@@ -16,16 +16,6 @@ const worldStore = new DataStore(universe, "Games");
 import { RobloxUsersAPIInfo, WubbyAPIWorldInfo } from "../../index.d.ts";
 import { WubbyWorldInfo } from "../types/world.types.ts";
 
-/*
-
-Fix data inconsistencies in WubbyWorldInfo
-
-and return WubbyAPIWorldInfo
-
-
-
-*/
-
 export const parseWorldMetadata = async (world: WubbyWorldInfo) => {
     
     const requests = [

@@ -1,27 +1,31 @@
 import { Context, Router } from "https://deno.land/x/oak@14.2.0/mod.ts"
+import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 // controllers //
 import { healthCheck, statistics } from './controllers/api.ts';
-import { getWorldInfo, searchWorld, insertWorld, updateWorld } from './controllers/world.ts';
+import * as worldcontroller from './controllers/world.ts';
 import { getUserInfo } from "./controllers/user.ts";
 
 // middlewares //
 import { auth } from './middlewares/auth.middleware.ts'
 import { validateWorldData } from "./middlewares/world.middleware.ts";
+import { rateLimiter } from "./middlewares/ratelimiter.middleware.ts";
 
 // variables //
 const router = new Router();
 
 
-router.get('/', healthCheck);
-router.get('/statistics', statistics)
+router.get('/', oakCors(), rateLimiter({ windowMs: 60 * 1000, maxRequests: 1 }), healthCheck);
+router.get('/statistics', oakCors(), statistics)
 
-router.get('/v1/worldinfo/:worldid', getWorldInfo);
-router.get('/v1/userinfo/:userid', getUserInfo);
+router.get('/v1/worldinfo/:worldid', oakCors(), worldcontroller.getWorldInfo);
+router.get('/v1/userinfo/:userid', oakCors(), getUserInfo);
 
-router.get('/v1/searchworld', searchWorld);
-router.post('/v1/insertworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, insertWorld);
-router.patch('/v1/updateworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, updateWorld);
+router.post('/v1/worldinfo', oakCors(), rateLimiter({ windowMs: 60 * 1000, maxRequests: 25 }), worldcontroller.batchGetWorldInfo);
+
+router.get('/v1/searchworld', oakCors(), rateLimiter({ windowMs: 60 * 1000, maxRequests: 100 }), worldcontroller.searchWorld);
+router.post('/v1/insertworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, worldcontroller.insertWorld);
+router.patch('/v1/updateworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, worldcontroller.updateWorld);
 
 router.get("/(.*)", (context: Context) => {
     if (context.request.url.pathname.startsWith("/favicon.ico")) {
