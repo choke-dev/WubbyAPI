@@ -18,6 +18,7 @@ router.get('/', rateLimiter({ windowMs: 60 * 1000, maxRequests: 1 }), healthChec
 router.get('/statistics', statistics)
 
 router.get('/v1/worldinfo/:worldid', worldcontroller.getWorldInfo);
+router.get('/v1/userworlds/:userid', worldcontroller.getUserWorlds);
 router.get('/v1/userinfo/:userid', getUserInfo);
 
 router.post('/v1/worldinfo', rateLimiter({ windowMs: 60 * 1000, maxRequests: 25 }), worldcontroller.batchGetWorldInfo);

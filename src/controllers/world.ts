@@ -50,7 +50,7 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
     const [worldInfo] = await Promise.all([
       worlds.GetAsync(worldID).then(response => response[0]),
     ]) as [WubbyWorldInfo];
-
+    
     const data = await parseWorldMetadata(worldInfo)
     
     response.body = data
@@ -62,38 +62,62 @@ const getWorldInfo = async ({ response, params }: { response: Response, params: 
   }
 }
 
+const getUserWorlds = async ({ response, params }: { response: Response, params: { userid: string } }) => {
+  const userId = params.userid
+  
+  if (!numberRegex.test(String(userId))) {
+    response.body = { errors: [{ message: `Invalid user ID. (Received: ${userId})` }] };
+    response.status = 400;
+    return
+  }
+  
+  const { data, error } = await supabase
+  .from('worlds')
+  .select('*')
+  .filter('creator', 'eq', userId)
+
+  if (error) {
+    response.body = { errors: [error] }
+    response.status = 500
+    return
+  }
+
+  response.body = data
+  response.status = 200
+}
+
 const batchGetWorldInfo = async ({ request, response }: { request: Request, response: Response }) => {
   const requestbody: { worldIds: number[] } | null = await request.body.json().catch(() => null);
-
+  
   if (!requestbody) {
     response.body = { errors: [{ message: "Missing request body" }] };
     response.status = 400;
     return;
   }
-
+  
   //@ts-ignore no
   const [status, errors] = await validasaur.validate(requestbody, {
     worldIds: validasaur.validateArray(true, [validasaur.isNumber])
   })
-
+  
   if (!status) {
     response.body = { errors: errors };
     response.status = 400;
     return;
   }
-
+  
   if (requestbody.worldIds.length === 0) {
     response.body = [];
     response.status = 200;
     return;
   }
-
+  
   if (requestbody.worldIds.length > MAX_QUERY_LIMIT) {
     response.body = { errors: [{ message: `Too many worlds. Limit is ${MAX_QUERY_LIMIT}` }] };
     response.status = 400;
     return;
   }
-
+  
   const worldPromises = requestbody.worldIds.map(worldID => 
     worlds.GetAsync(String(worldID)).then(response => response[0])
   )
@@ -102,7 +126,7 @@ const batchGetWorldInfo = async ({ request, response }: { request: Request, resp
   
   //@ts-ignore no
   const data = await Promise.all(worldsData.map((world: WubbyWorldInfo) => parseWorldMetadata(world)))
-
+  
   response.body = data
   response.status = 200
 }
@@ -145,7 +169,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
       thumbnails: world.thumbnails?.map(thumbnail => Number(thumbnail)) || []
     }
   }) || [];
-
+  
   data = data?.map((world: Partial<WubbyAPIWorldInfo>) => {
     return Object.keys(world).sort().reduce((acc, key) => {
       //@ts-ignore dont care
@@ -153,7 +177,7 @@ const searchWorld = async ({ request, response }: { request: Request, response: 
       return acc
     }, {} as Partial<WubbyAPIWorldInfo>) as WubbyAPIWorldInfo
   }) || [];
-
+  
   response.body = data
   response.status = 200;
 }
@@ -200,4 +224,4 @@ const updateWorld = async ({ response, state }: { response: Response, state: Sta
   }
 }
 
-export { getWorldInfo, batchGetWorldInfo, searchWorld, insertWorld, updateWorld }
+export { getWorldInfo, getUserWorlds, batchGetWorldInfo, searchWorld, insertWorld, updateWorld }
