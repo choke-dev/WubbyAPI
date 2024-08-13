@@ -1,5 +1,4 @@
 import { Context, Router } from "https://deno.land/x/oak@14.2.0/mod.ts"
-import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 // controllers //
 import { healthCheck, statistics } from './controllers/api.ts';
@@ -15,15 +14,15 @@ import { rateLimiter } from "./middlewares/ratelimiter.middleware.ts";
 const router = new Router();
 
 
-router.get('/', oakCors(), rateLimiter({ windowMs: 60 * 1000, maxRequests: 1 }), healthCheck);
-router.get('/statistics', oakCors(), statistics)
+router.get('/', rateLimiter({ windowMs: 60 * 1000, maxRequests: 1 }), healthCheck);
+router.get('/statistics', statistics)
 
-router.get('/v1/worldinfo/:worldid', oakCors(), worldcontroller.getWorldInfo);
-router.get('/v1/userinfo/:userid', oakCors(), getUserInfo);
+router.get('/v1/worldinfo/:worldid', worldcontroller.getWorldInfo);
+router.get('/v1/userinfo/:userid', getUserInfo);
 
-router.post('/v1/worldinfo', oakCors(), rateLimiter({ windowMs: 60 * 1000, maxRequests: 25 }), worldcontroller.batchGetWorldInfo);
+router.post('/v1/worldinfo', rateLimiter({ windowMs: 60 * 1000, maxRequests: 25 }), worldcontroller.batchGetWorldInfo);
 
-router.get('/v1/searchworld', oakCors(), rateLimiter({ windowMs: 60 * 1000, maxRequests: 100 }), worldcontroller.searchWorld);
+router.get('/v1/searchworld', rateLimiter({ windowMs: 60 * 1000, maxRequests: 100 }), worldcontroller.searchWorld);
 router.post('/v1/insertworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, worldcontroller.insertWorld);
 router.patch('/v1/updateworld', auth([Deno.env.get("APIKEY_LOCKED")!]), validateWorldData, worldcontroller.updateWorld);
 
