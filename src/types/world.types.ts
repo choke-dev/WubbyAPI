@@ -16,6 +16,11 @@ type WubbyWorldInfo = {
     ActivePlayers: number | [string, string, number][];
 
     /**
+     * An array of 3 numbers representing the background color of the world.
+     */
+    BG?: [number, number, number];
+
+    /**
      * An array of banned player userids.
      */
     Banned: any[];
@@ -81,6 +86,11 @@ type WubbyWorldInfo = {
      * 4: Taken Down
      */
     State: number;
+
+    /**
+     * WIP
+     */
+    TC?: number[]
 
     /**
      * The total number of visits this world has.
