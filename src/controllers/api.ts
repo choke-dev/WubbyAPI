@@ -41,7 +41,7 @@ const healthCheck = async ({ response }: { response: Response }) => {
     KEY: Deno.env.get("API_KEY"),
     SUPABASE_KEY: Deno.env.get("SUPABASE_KEY"),
     SUPABASE_URL: Deno.env.get("SUPABASE_URL"),
-    UNIVERSE_ID: SUPABASE_URL: Deno.env.get("UNIVERSE_ID")
+    UNIVERSE_ID: Deno.env.get("UNIVERSE_ID")
   }
   console.dir(temp, { depth: null })
 }
