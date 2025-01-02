@@ -34,16 +34,7 @@ const healthCheck = async ({ response }: { response: Response }) => {
   response.body = {
     message: 'OK'
   };
-  response.status = 200;
-
-  const temp = {
-    LOCKED: Deno.env.get("APIKEY_LOCKED"),
-    KEY: Deno.env.get("API_KEY"),
-    SUPABASE_KEY: Deno.env.get("SUPABASE_KEY"),
-    SUPABASE_URL: Deno.env.get("SUPABASE_URL"),
-    UNIVERSE_ID: Deno.env.get("UNIVERSE_ID")
-  }
-  console.dir(temp, { depth: null })
+  response.status = 200;  
 }
 
 const statistics = async ({ response }: { response: Response }) => {
